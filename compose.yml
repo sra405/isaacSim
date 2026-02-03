@@ -4,16 +4,16 @@ services:
   isaac-sim:
     image: nvcr.io/nvidia/isaac-sim:5.1.0
     container_name: isaac-sim
-    platform: linux/amd64
+    # platform: linux/amd64
     entrypoint: bash
-    # runtime: nvidia
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [gpu]
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     environment:
       - ACCEPT_EULA=Y
       - PRIVACY_CONSENT=Y
