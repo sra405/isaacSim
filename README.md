@@ -9,6 +9,10 @@ This is a work in progress repo with the aim of committing a minimal working exa
 Key files:
 - [compose.yml](compose.yml) - a compose file produced from the manual docker run commands in the installation steps documented [here](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/install_advanced_cloud_setup_brev.html#running-isaac-sim-container).
 
+Key commands:
+- `./isaac-sim.compatibility_check.sh` - determines hardware and OS compatibility
+- `./runheadless.sh -v` - runs Isaac Sim in headless mode
+
 ## Deployment methods
 
 - Locally
@@ -16,3 +20,59 @@ Key files:
   - from source ([Github](https://github.com/isaac-sim/IsaacSim?tab=readme-ov-file#quick-start))
 - Cloud
   - Brev - one click NVIDIA instances ([docs](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/install_advanced_cloud_setup_brev.html))
+
+### Local Windows Attempt
+
+This attempt at least confirmed the setup in the docker compose file works. On running the compatibility check (inside the docker image) it returned the following:
+
+```bash
+[10.194s] =============================================
+[10.195s] 
+[10.197s] NVIDIA GPU(s)
+[10.466s]   |-- Driver version [supported]
+[10.466s]   |     |-- installed: 582.28
+[10.467s]   |     |-- minimum: 535.161
+[10.601s]   |-- GPU 0 [unsupported]
+[10.602s]   |     |-- name: NVIDIA GeForce GTX 1070
+[10.727s]   |-- GPU 0: VRAM [not enough]
+[10.727s]   |     |-- total: 8.59 GB
+[10.727s]   |     |-- minimum: 10 GB
+[10.728s] 
+[10.729s] CPU, RAM and Storage
+[10.730s]   |-- CPU processor [supported]
+[10.731s]   |     |-- name: Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz
+[10.732s]   |-- CPU cores [good]
+[10.733s]   |     |-- total: 8
+[10.734s]   |     |-- minimum: 4
+[10.735s]   |-- CPU power governor [CPU power governor file not found for some cores]
+[10.735s]   |     |-- governor(s): 
+[10.736s]   |-- RAM [not enough]
+[10.737s]   |     |-- total: 8.27 GB
+[10.738s]   |     |-- minimum: 32 GB
+[10.758s]   |-- Storage [excellent]
+[10.758s]   |     |-- total available: 2709.5 GB
+[10.759s]   |     |-- minimum: 50 GB
+[10.762s] 
+[10.762s] Others
+[10.764s]   |-- Operating system [supported]
+[10.765s]   |     |-- name and version: Ubuntu 24.04.2 LTS
+[10.767s]   |-- Display [no display was detected, visit the following link for information on the different livestreaming methods to view headless application instances: docs.omniverse.nvidia.com/isaacsim/latest/installation/manual_livestream_clients.html]
+[10.768s] 
+[10.769s] =============================================
+[10.770s] 
+[10.771s] System checking result: FAILED
+[10.772s] 
+[10.773s] =============================================
+```
+
+This confirms the following minimum requirements:
+
+|Component|Your System (Detected)|Isaac Sim 5.1.0 Minimum|Status|
+| ------- | -------------------- | --------------------- | ---- |
+GPU Model|NVIDIA GeForce GTX 1070 (Pascal)|RTX 3070 (Turing+)|❌ Unsupported
+VRAM|8.59 GB|10 GB - 16 GB|❌ Not Enough
+System RAM|8.27 GB|32 GB|❌ Critical Fail
+CPU|i7-3770 (4 Cores / 8 Threads)|i7 (7th Gen) / 4+ Cores|✅ Supported
+Driver Version|582.28|535.161+|✅ Excellent
+Storage|2.7 TB available|50 GB SSD|✅ Excellent
+OS|Ubuntu 24.04.2 (WSL2)|Ubuntu 22.04+ / Windows 10+|✅ Supported
