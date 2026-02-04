@@ -3,7 +3,7 @@ services:
     image: nvcr.io/nvidia/isaac-sim:5.1.0
     container_name: isaac-sim
     # platform: linux/amd64
-    entrypoint: bash
+    entrypoint: /usr/sbin/sshd -D & bash
     runtime: nvidia
     deploy:
       resources:
@@ -16,6 +16,8 @@ services:
       - ACCEPT_EULA=Y
       - PRIVACY_CONSENT=Y
     network_mode: host
+    ports:
+      - "2222:22"
     volumes:
       - ~/docker/isaac-sim/cache/main:/isaac-sim/.cache:rw
       - ~/docker/isaac-sim/cache/computecache:/isaac-sim/.nv/ComputeCache:rw
@@ -23,7 +25,18 @@ services:
       - ~/docker/isaac-sim/config:/isaac-sim/.nvidia-omniverse/config:rw
       - ~/docker/isaac-sim/data:/isaac-sim/.local/share/ov/data:rw
       - ~/docker/isaac-sim/pkg:/isaac-sim/.local/share/ov/pkg:rw
-    user: "1234:1234"
+    # user: "1234:1234"  # Commented out to allow SSH login as root or another user
     stdin_open: true
     tty: true
     restart: "no"
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    depends_on:
+      - isaac-sim
+    environment:
+      - CF_TUNNEL_TOKEN=${CF_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate run --token ${CF_TUNNEL_TOKEN} --url ssh://localhost:2222
+    restart: unless-stopped
+    network_mode: host
