@@ -9,9 +9,34 @@ This is a work in progress repo with the aim of committing a minimal working exa
 Key files:
 - [compose.yml](compose.yml) - a compose file produced from the manual docker run commands in the installation steps documented [here](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/install_advanced_cloud_setup_brev.html#running-isaac-sim-container).
 
+Key services:
+- `isaac-sim` - the main Isaac Sim container
+- `cloudflared` - a Cloudflare tunnel container to expose SSH access to Isaac Sim for remote control
+- `openssh-server` - an SSH server container to allow remote access into Isaac Sim via the cloudflared tunnel
+
+## Usage
+
+Pull, set the `CF_TUNNEL_TOKEN` in a `.env` file (see `.env.example`) and run the compose file:
+
+```bash
+docker compose up -d
+
 Key commands:
 - `./isaac-sim.compatibility_check.sh` - determines hardware and OS compatibility
 - `./runheadless.sh -v` - runs Isaac Sim in headless mode
+
+for enabling remote access when running headless:
+- `PUBLIC_IP=$(curl -s ifconfig.me) && ./runheadless.sh --/app/livestream/publicEndpointAddress=$PUBLIC_IP --/app/livestream/port=49100` - or set the PUBLIC_IP variable manually
+
+the docs state:
+```
+The following ports must be opened on the host running Isaac Sim:
+
+UDP port 47998
+TCP port 49100
+```
+
+I suspect these can be mapped through cloudflare tunnel too but have not yet tested as my local hardware is not compatible with Isaac Sim.
 
 ## Deployment methods
 
