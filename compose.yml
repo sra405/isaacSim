@@ -3,7 +3,7 @@ services:
     image: nvcr.io/nvidia/isaac-sim:5.1.0
     container_name: isaac-sim
     # platform: linux/amd64
-    entrypoint: /usr/sbin/sshd -D & bash
+    entrypoint: bash
     runtime: nvidia
     deploy:
       resources:
@@ -16,8 +16,6 @@ services:
       - ACCEPT_EULA=Y
       - PRIVACY_CONSENT=Y
     network_mode: host
-    ports:
-      - "2222:22"
     volumes:
       - ~/docker/isaac-sim/cache/main:/isaac-sim/.cache:rw
       - ~/docker/isaac-sim/cache/computecache:/isaac-sim/.nv/ComputeCache:rw
@@ -30,11 +28,32 @@ services:
     tty: true
     restart: "no"
 
+  openssh-server:
+    image: lscr.io/linuxserver/openssh-server:latest
+    container_name: openssh-server
+    hostname: openssh-server
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Etc/UTC
+      # - PUBLIC_KEY= # No public key, password only
+      - SUDO_ACCESS=true
+      - PASSWORD_ACCESS=true
+      - USER_PASSWORD=changeme
+      - USER_NAME=sshuser
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # - /path/to/openssh-server/config:/config  # Optional: persistent config
+    ports:
+      - 2222:2222
+    restart: unless-stopped
+
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
     depends_on:
       - isaac-sim
+      - openssh-server
     environment:
       - CF_TUNNEL_TOKEN=${CF_TUNNEL_TOKEN}
     command: tunnel --no-autoupdate run --token ${CF_TUNNEL_TOKEN} --url ssh://localhost:2222
