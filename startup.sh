@@ -47,4 +47,7 @@ fi
 echo "Starting Isaac Sim containers..."
 docker compose up -d isaac-sim
 
+echo "Fixing permissions for all mounted volumes..."
+sudo chmod -R 777 ./docker/isaac-sim/
+
 echo "Isaac Sim startup complete."

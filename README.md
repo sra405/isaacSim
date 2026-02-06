@@ -2,6 +2,15 @@
 
 An initial PoC for Isaac Sim. This repository contains a simple setup to demonstrate the requirements, installation steps, and basic usage of Isaac Sim.
 
+## Deployment methods
+
+- Locally
+  - [headless](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/install_container.html#isaac-sim-setup-remote-headless-container) using docker ([container registry](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/isaac-sim?version=5.1.0))
+  - from source ([Github](https://github.com/isaac-sim/IsaacSim?tab=readme-ov-file#quick-start))
+- Cloud
+  - Brev - one click NVIDIA instances ([docs](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/install_advanced_cloud_setup_brev.html))
+
+
 ## Usage
 
 To simply run the Isaac Sim container you can run [startup.sh](startup.sh) which will pull the repo (if needed) and run the container with the necessary volumes and ports. This will not run the openSSH server or cloudflared tunnel, for that you will need to run the entire compose file (see below).
@@ -13,24 +22,16 @@ docker compose up -d
 ```
 
 the Isaac Sim container will run the following to run headlessly and enable remote access:
-- `PUBLIC_IP=$(curl -s ifconfig.me) && ./runheadless.sh --/app/livestream/publicEndpointAddress=$PUBLIC_IP --/app/livestream/port=49100` - or set the PUBLIC_IP variable manually
+- `PUBLIC_IP=$(curl -s ifconfig.me) && ./runheadless.sh --/app/livestream/publicEndpointAddress=$PUBLIC_IP --/app/livestream/port=49100`
 
 the docs state:
-```
+```markdown
 The following ports must be opened on the host running Isaac Sim:
 
 UDP port 47998
 TCP port 49100
 ```
 *this is essential, without 47998 the handshake will fail and livestreaming will not work over 49100*
-
-## Deployment methods
-
-- Locally
-  - [headless](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/install_container.html#isaac-sim-setup-remote-headless-container) using docker ([container registry](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/isaac-sim?version=5.1.0))
-  - from source ([Github](https://github.com/isaac-sim/IsaacSim?tab=readme-ov-file#quick-start))
-- Cloud
-  - Brev - one click NVIDIA instances ([docs](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/install_advanced_cloud_setup_brev.html))
 
 
 ## Notes
@@ -39,6 +40,7 @@ This is a work in progress repo with the aim of committing a minimal working exa
 
 Key files:
 - [compose.yml](compose.yml) - a compose file produced from the manual docker run commands in the installation steps documented [here](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/install_advanced_cloud_setup_brev.html#running-isaac-sim-container).
+- [startup.sh](startup.sh) - a simple script to run the Isaac Sim container with the necessary volumes and ports. This is a simplified version of the compose file without the cloudflared tunnel and openSSH server. This can be copied into a Brev instance to run on startup.
 
 Key services:
 - `isaac-sim` - the main Isaac Sim container
@@ -53,9 +55,13 @@ I suspect the PUBLIC_IP can be mapped through cloudflare tunnel but I have yet t
 
 ### Brev
 
-With the `isaac-sim` container running, I can connect to the instance via Brev CLI and exec into the container to run the headless command. The ports need to be opened for livestreaming but it works.
+With the `isaac-sim` container running (using startup.sh), I can connect to the instance via Brev CLI and/or open the required ports (49100 and 47998) to enable livestreaming.
 
-Manually I need to run the following command to change ownership of the mounted volumes to allow Isaac Sim to write to them:
+![Brev Ports](./docs/brev_ports.png)
+
+This can be made completely public or restricted to only your IP address. After this the IP address can be used to connect to the livestream in Isaac Sim.
+
+Without the startup script, I need to run the following command to change ownership of the mounted volumes to allow Isaac Sim to write to them:
 
 ```bash
 sudo chown 777 -R ~/docker/isaac-sim/
@@ -67,6 +73,20 @@ Asset loading currently fails with red boxes in the file explorer and the follow
 Failed to find item at 'https://omniverse-content-production.s3-us-west-2.amazonaws.com/'
 ```
 
+#### Debugging
+
+The Brev CLI can be used to access a shell in the instance and view logs in real time:
+
+```bash
+brev shell <instance-name>
+```
+
+from here you can run typical linux and docker commands to tail container logs
+
+```bash
+docker logs -f isaac-sim --follow
+```
+
 ### ROS
 
 I'm currently unsure in doosan-robot works with Isaac Sim (see closed Github issue [here](https://github.com/DoosanRobotics/doosan-robot2/issues/83)). If it does, I will add a ROS container to the compose file and update the usage instructions accordingly.
@@ -75,7 +95,7 @@ I'm currently unsure in doosan-robot works with Isaac Sim (see closed Github iss
 
 - Can I get this all loading in Brev on startup?
 - Can I get assets loaded?
-- Can I 
+- Can I get a working ROS setup with the Doosan robot or turtlebot (or similar)?
 
 ### Local Windows Attempt
 
