@@ -24,6 +24,7 @@ The following ports must be opened on the host running Isaac Sim:
 UDP port 47998
 TCP port 49100
 ```
+*this is essential, without 47998 the handshake will fail and livestreaming will not work over 49100*
 
 I suspect these can be mapped through cloudflare tunnel too but have not yet tested as my local hardware is not compatible with Isaac Sim.
 
