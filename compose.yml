@@ -3,7 +3,12 @@ services:
     image: nvcr.io/nvidia/isaac-sim:5.1.0
     container_name: isaac-sim
     # platform: linux/amd64
-    entrypoint: [\"bash\", \"-c\", \"PUBLIC_IP=$(curl -s ifconfig.me) && ./runheadless.sh --/app/livestream/publicEndpointAddress=$PUBLIC_IP --/app/livestream/port=49100\"]    runtime: nvidia
+    entrypoint:
+      - bash
+      - -c
+      - |
+        PUBLIC_IP=$(curl -s ifconfig.me) && ./runheadless.sh --/app/livestream/publicEndpointAddress=$PUBLIC_IP --/app/livestream/port=49100
+    runtime: nvidia
     deploy:
       resources:
         reservations:
