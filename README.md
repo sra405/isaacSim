@@ -2,24 +2,13 @@
 
 An initial PoC for Isaac Sim. This repository contains a simple setup to demonstrate the requirements, installation steps, and basic usage of Isaac Sim.
 
-## Notes
-
-This is a work in progress repo with the aim of committing a minimal working example of Isaac Sim usage. With the proposed approach being to spin up/down cloud GPU compute instances its vital to version control the setup steps as much as possible.
-
-Key files:
-- [compose.yml](compose.yml) - a compose file produced from the manual docker run commands in the installation steps documented [here](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/install_advanced_cloud_setup_brev.html#running-isaac-sim-container).
-
-Key services:
-- `isaac-sim` - the main Isaac Sim container
-- `cloudflared` - a Cloudflare tunnel container to expose SSH access to Isaac Sim for remote control
-- `openssh-server` - an SSH server container to allow remote access into Isaac Sim via the cloudflared tunnel
-
 ## Usage
 
-Pull, set the `CF_TUNNEL_TOKEN` in a `.env` file (see `.env.example`) and run the compose file:
+Pull, set the `CF_TUNNEL_TOKEN` in a `.env` file and run the compose file:
 
 ```bash
 docker compose up -d
+```
 
 Key commands:
 - `./isaac-sim.compatibility_check.sh` - determines hardware and OS compatibility
@@ -45,6 +34,45 @@ I suspect these can be mapped through cloudflare tunnel too but have not yet tes
   - from source ([Github](https://github.com/isaac-sim/IsaacSim?tab=readme-ov-file#quick-start))
 - Cloud
   - Brev - one click NVIDIA instances ([docs](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/install_advanced_cloud_setup_brev.html))
+
+
+## Notes
+
+This is a work in progress repo with the aim of committing a minimal working example of Isaac Sim usage. With the proposed approach being to spin up/down cloud GPU compute instances its vital to version control the setup steps as much as possible.
+
+Key files:
+- [compose.yml](compose.yml) - a compose file produced from the manual docker run commands in the installation steps documented [here](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/install_advanced_cloud_setup_brev.html#running-isaac-sim-container).
+
+Key services:
+- `isaac-sim` - the main Isaac Sim container
+- `cloudflared` - a Cloudflare tunnel container to expose SSH access to Isaac Sim for remote control
+- `openssh-server` - an SSH server container to allow remote access into Isaac Sim via the cloudflared tunnel
+
+### Brev
+
+With the `isaac-sim` container running, I can connect to the instance via Brev CLI and exec into the container to run the headless command. The ports need to be opened for livestreaming but it works.
+
+Manually I need to run the following command to change ownership of the mounted volumes to allow Isaac Sim to write to them:
+
+```bash
+sudo chown 777 -R ~/docker/isaac-sim/
+```
+
+Asset loading currently fails with red boxes in the file explorer and the following error in the logs when clicked:
+
+```bash
+Failed to find item at 'https://omniverse-content-production.s3-us-west-2.amazonaws.com/'
+```
+
+### ROS
+
+I'm currently unsure in doosan-robot works with Isaac Sim (see closed Github issue [here](https://github.com/DoosanRobotics/doosan-robot2/issues/83)). If it does, I will add a ROS container to the compose file and update the usage instructions accordingly.
+
+### Questions
+
+- Can I get this all loading in Brev on startup?
+- Can I get assets loaded?
+- Can I 
 
 ### Local Windows Attempt
 
