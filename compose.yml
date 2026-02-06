@@ -21,12 +21,12 @@ services:
       - PRIVACY_CONSENT=Y
     network_mode: host
     volumes:
-      - ~/docker/isaac-sim/cache/main:/isaac-sim/.cache:rw
-      - ~/docker/isaac-sim/cache/computecache:/isaac-sim/.nv/ComputeCache:rw
-      - ~/docker/isaac-sim/logs:/isaac-sim/.nvidia-omniverse/logs:rw
-      - ~/docker/isaac-sim/config:/isaac-sim/.nvidia-omniverse/config:rw
-      - ~/docker/isaac-sim/data:/isaac-sim/.local/share/ov/data:rw
-      - ~/docker/isaac-sim/pkg:/isaac-sim/.local/share/ov/pkg:rw
+      - ./docker/isaac-sim/cache/main:/isaac-sim/.cache:rw
+      - ./docker/isaac-sim/cache/computecache:/isaac-sim/.nv/ComputeCache:rw
+      - ./docker/isaac-sim/logs:/isaac-sim/.nvidia-omniverse/logs:rw
+      - ./docker/isaac-sim/config:/isaac-sim/.nvidia-omniverse/config:rw
+      - ./docker/isaac-sim/data:/isaac-sim/.local/share/ov/data:rw
+      - ./docker/isaac-sim/pkg:/isaac-sim/.local/share/ov/pkg:rw
     # user: "1234:1234"  # Commented out to allow SSH login as root or another user
     stdin_open: true
     tty: true

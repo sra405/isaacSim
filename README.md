@@ -4,17 +4,15 @@ An initial PoC for Isaac Sim. This repository contains a simple setup to demonst
 
 ## Usage
 
-Pull, set the `CF_TUNNEL_TOKEN` in a `.env` file and run the compose file:
+To simply run the Isaac Sim container you can run [startup.sh](startup.sh) which will pull the repo (if needed) and run the container with the necessary volumes and ports. This will not run the openSSH server or cloudflared tunnel, for that you will need to run the entire compose file (see below).
+
+For the entire setup set the `CF_TUNNEL_TOKEN` in a `.env` file and run the compose file:
 
 ```bash
 docker compose up -d
 ```
 
-Key commands:
-- `./isaac-sim.compatibility_check.sh` - determines hardware and OS compatibility
-- `./runheadless.sh -v` - runs Isaac Sim in headless mode
-
-for enabling remote access when running headless:
+the Isaac Sim container will run the following to run headlessly and enable remote access:
 - `PUBLIC_IP=$(curl -s ifconfig.me) && ./runheadless.sh --/app/livestream/publicEndpointAddress=$PUBLIC_IP --/app/livestream/port=49100` - or set the PUBLIC_IP variable manually
 
 the docs state:
@@ -25,8 +23,6 @@ UDP port 47998
 TCP port 49100
 ```
 *this is essential, without 47998 the handshake will fail and livestreaming will not work over 49100*
-
-I suspect these can be mapped through cloudflare tunnel too but have not yet tested as my local hardware is not compatible with Isaac Sim.
 
 ## Deployment methods
 
@@ -48,6 +44,12 @@ Key services:
 - `isaac-sim` - the main Isaac Sim container
 - `cloudflared` - a Cloudflare tunnel container to expose SSH access to Isaac Sim for remote control
 - `openssh-server` - an SSH server container to allow remote access into Isaac Sim via the cloudflared tunnel
+
+Key Isaac Sim commands:
+- `./isaac-sim.compatibility_check.sh` - determines hardware and OS compatibility
+- `./runheadless.sh -v` - runs Isaac Sim in headless mode
+
+I suspect the PUBLIC_IP can be mapped through cloudflare tunnel but I have yet to test it as my local hardware is not compatible with Isaac Sim.
 
 ### Brev
 
