@@ -27,9 +27,6 @@ services:
       - ~/docker/isaac-sim/config:/isaac-sim/.nvidia-omniverse/config:rw
       - ~/docker/isaac-sim/data:/isaac-sim/.local/share/ov/data:rw
       - ~/docker/isaac-sim/pkg:/isaac-sim/.local/share/ov/pkg:rw
-      - ~/docker/isaac-sim/cache/kit:/isaac-sim/kit/cache:rw
-      - ~/docker/isaac-sim/cache/ov:/root/.cache/ov:rw
-      - ~/docker/isaac-sim/cache/glcache:/root/.cache/nvidia/GLCache:rw
     # user: "1234:1234"  # Commented out to allow SSH login as root or another user
     stdin_open: true
     tty: true
