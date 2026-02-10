@@ -1,4 +1,3 @@
-# See https://catalog.ngc.nvidia.com/orgs/nvidia/containers/isaac-sim for more images
 ARG ISAAC_SIM_VERSION=5.1.0
 ARG ROBOT_ID
 ARG ROBOT_MODEL
@@ -36,23 +35,30 @@ RUN apt-get update && apt-get install -y curl \
 RUN apt-get update && \
     apt-get install -y ros-dev-tools && \
     apt-get upgrade -y && \
-    apt-get install -y ros-${ROS_DISTRO}-desktop ros-${ROS_DISTRO}-ros-base
+    apt-get install -y \
+        ros-${ROS_DISTRO}-desktop ros-${ROS_DISTRO}-ros-base \
+        ros-${ROS_DISTRO}-vision-msgs \
+        ros-${ROS_DISTRO}-ackermann-msgs && \
+    rm -rf /var/lib/apt/lists/*
 
-# Setup ROS2 environment
-RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /root/.bashrc
+# Setup ROS2 environment - copy fastdds.xml to system-wide location
+COPY static/fastdds.xml /etc/ros/fastdds.xml
+
+RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /root/.bashrc && \
+    echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /isaac-sim/.bashrc && \
+    echo "export RMW_IMPLEMENTATION=rmw_fastrtps_cpp" >> /root/.bashrc && \
+    echo "export RMW_IMPLEMENTATION=rmw_fastrtps_cpp" >> /isaac-sim/.bashrc && \
+    echo "export FASTRTPS_DEFAULT_PROFILES_FILE=/etc/ros/fastdds.xml" >> /root/.bashrc && \
+    echo "export FASTRTPS_DEFAULT_PROFILES_FILE=/etc/ros/fastdds.xml" >> /isaac-sim/.bashrc && \
+    echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/isaac-sim/exts/isaacsim.ros2.bridge/${ROS_DISTRO}/lib" >> /root/.bashrc && \
+    echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/isaac-sim/exts/isaacsim.ros2.bridge/${ROS_DISTRO}/lib" >> /isaac-sim/.bashrc && \
+    echo 'export ROS_DOMAIN_ID=30' >> /root/.bashrc && \
+    echo 'export ROS_DOMAIN_ID=30' >> /isaac-sim/.bashrc
 ENV ROS_DISTRO=${ROS_DISTRO}
+ENV FASTRTPS_DEFAULT_PROFILES_FILE=/etc/ros/fastdds.xml
 
-# Optionally switch back to the original user if required by Isaac Sim (uncomment and set correct user)
-# USER isaac
-
-# --- ROS2 installation steps go here ---
-# Example: Install ROS2 dependencies (edit as needed)
-# ARG ROS_DISTRO=jazzy
-# RUN apt-get update && apt-get install -y --no-install-recommends \
-#     ros-${ROS_DISTRO}-ros-gz \
-#     ros-${ROS_DISTRO}-ros-gz-*
-# ...
-
+# Switch back to the original user if required by Isaac Sim
+USER isaac-sim
 
 # ---
 # The following are the original ROS2 and TurtleBot3 Docker steps for reference.
@@ -84,11 +90,6 @@ ENV ROS_DISTRO=${ROS_DISTRO}
 #     fakeroot \
 #     debhelper \
 #     dh-python
-#
-# # Setup Environment
-# RUN set -e \
-#  && source /opt/ros/${ROS_DISTRO}/setup.bash \
-#  && echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /root/.bashrc
 #
 # FROM ros2 AS ros2-turtlebot3
 #
@@ -123,19 +124,12 @@ ENV ROS_DISTRO=${ROS_DISTRO}
 #  && rosdep update || true \
 #  && rosdep install --from-paths /root/turtlebot3_ws/src --ignore-src --rosdistro ${ROS_DISTRO} -y || true \
 #  && colcon build --base-paths /root/turtlebot3_ws --symlink-install \
-#  && source install/setup.bash \
 #  && echo "source /root/turtlebot3_ws/install/setup.bash" >> /root/.bashrc \
-#  && echo 'export ROS_DOMAIN_ID=30 #TURTLEBOT3' >> /root/.bashrc \
 #  && echo 'source /usr/share/gazebo/setup.sh' >> /root/.bashrc
 #
 # WORKDIR /root
 # # COPY requirements.txt .
 #
-# RUN set -e \
-#  && rm -rf /var/lib/apt/lists/*
-#
 # ENV TURTLEBOT3_MODEL=waffle
 # ENV GAZEBO_MODEL_PATH=/root/turtlebot3_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models
 # ENV GZ_MODEL_PATH=/root/turtlebot3_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models
-# ENV ROS_DOMAIN_ID=30
-# ENV ROS_DISTRO=${ROS_DISTRO}
