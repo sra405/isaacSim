@@ -1,6 +1,7 @@
 services:
   isaac-sim:
-    image: nvcr.io/nvidia/isaac-sim:5.1.0
+    build: .
+    image: isaac-sim-ros2:5.1.0-jazzy
     container_name: isaac-sim
     # platform: linux/amd64
     entrypoint:

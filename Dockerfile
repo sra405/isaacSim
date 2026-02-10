@@ -1,11 +1,12 @@
 # See https://catalog.ngc.nvidia.com/orgs/nvidia/containers/isaac-sim for more images
-ARG ROS_DISTRO=jazzy
 ARG ISAAC_SIM_VERSION=5.1.0
 ARG ROBOT_ID
 ARG ROBOT_MODEL
 
 # Isaac Sim base image (see https://catalog.ngc.nvidia.com/orgs/nvidia/containers/isaac-sim)
 FROM nvcr.io/nvidia/isaac-sim:${ISAAC_SIM_VERSION} AS isaac-sim
+
+ARG ROS_DISTRO=jazzy
 
 SHELL ["/bin/bash", "-lc"]
 
@@ -21,9 +22,9 @@ RUN apt-get update && \
     locale
 
 # Install software-properties-common and enable universe repository
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends software-properties-common
-RUN add-apt-repository universe
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends software-properties-common && \
+    add-apt-repository universe
 
 # Install curl and add ROS2 apt source
 RUN apt-get update && apt-get install -y curl \
@@ -35,7 +36,11 @@ RUN apt-get update && apt-get install -y curl \
 RUN apt-get update && \
     apt-get install -y ros-dev-tools && \
     apt-get upgrade -y && \
-    apt-get install -y ros-jazzy-desktop ros-jazzy-ros-base
+    apt-get install -y ros-${ROS_DISTRO}-desktop ros-${ROS_DISTRO}-ros-base
+
+# Setup ROS2 environment
+RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /root/.bashrc
+ENV ROS_DISTRO=${ROS_DISTRO}
 
 # Optionally switch back to the original user if required by Isaac Sim (uncomment and set correct user)
 # USER isaac
