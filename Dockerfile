@@ -54,8 +54,11 @@ RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /root/.bashrc && \
     echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/isaac-sim/exts/isaacsim.ros2.bridge/${ROS_DISTRO}/lib" >> /isaac-sim/.bashrc && \
     echo 'export ROS_DOMAIN_ID=30' >> /root/.bashrc && \
     echo 'export ROS_DOMAIN_ID=30' >> /isaac-sim/.bashrc
+
 ENV ROS_DISTRO=${ROS_DISTRO}
 ENV FASTRTPS_DEFAULT_PROFILES_FILE=/etc/ros/fastdds.xml
+ENV RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+ENV ROS_DOMAIN_ID=30
 
 # Switch back to the original user if required by Isaac Sim
 USER isaac-sim
