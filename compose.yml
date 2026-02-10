@@ -1,14 +1,13 @@
 services:
   isaac-sim:
-    build: .
+    build:
+      context: .
+      args:
+        ROS_DISTRO: ${ROS_DISTRO:-jazzy}
     image: isaac-sim-ros2:5.1.0-jazzy
     container_name: isaac-sim
-    # platform: linux/amd64
-    entrypoint:
-      - bash
-      - -c
-      - |
-        PUBLIC_IP=$(curl -s ifconfig.me) && ./runheadless.sh --/app/livestream/publicEndpointAddress=$$PUBLIC_IP --/app/livestream/port=49100
+    # Uses ENTRYPOINT from Dockerfile which sources ROS2 and starts headless by default
+    # Override with: docker compose run isaac-sim <your-command>
     runtime: nvidia
     deploy:
       resources:
@@ -50,7 +49,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       # - /path/to/openssh-server/config:/config  # Optional: persistent config
     ports:
-      - 2222:2222
+      - 22:2222
     # network_mode: host
     restart: unless-stopped
 
@@ -58,10 +57,10 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
     depends_on:
-      - isaac-sim
+      # - isaac-sim
       - openssh-server
     environment:
       - CF_TUNNEL_TOKEN=${CF_TUNNEL_TOKEN}
-    command: tunnel --no-autoupdate run --token ${CF_TUNNEL_TOKEN} --url ssh://localhost:2222
+    command: tunnel --no-autoupdate run --token ${CF_TUNNEL_TOKEN} --url ssh://localhost:22
     restart: unless-stopped
     network_mode: host
