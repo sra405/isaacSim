@@ -43,6 +43,8 @@ RUN apt-get update && \
 
 # Setup ROS2 environment - copy fastdds.xml to system-wide location
 COPY static/fastdds.xml /etc/ros/fastdds.xml
+COPY static/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /root/.bashrc && \
     echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /isaac-sim/.bashrc && \
@@ -59,6 +61,9 @@ ENV ROS_DISTRO=${ROS_DISTRO}
 ENV FASTRTPS_DEFAULT_PROFILES_FILE=/etc/ros/fastdds.xml
 ENV RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 ENV ROS_DOMAIN_ID=30
+
+# Use entrypoint to dynamically source ROS2 setup and set LD_LIBRARY_PATH
+ENTRYPOINT ["/entrypoint.sh"]
 
 # Switch back to the original user if required by Isaac Sim
 USER isaac-sim
