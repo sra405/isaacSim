@@ -1,16 +1,13 @@
 #!/bin/bash
 set -e
 
-# Isaac Sim uses Python 3.11, but ROS Jazzy ships Python 3.12 bindings.
-# Use Isaac Sim's internal ROS2 bridge (compiled for Python 3.11) by setting
-# PYTHONPATH BEFORE sourcing ROS to override system rclpy.
+# Isaac Sim uses Python 3.11, ROS Jazzy has Python 3.12 bindings.
+# DO NOT source system ROS setup.bash - it conflicts with Isaac Sim's internal rclpy.
+# Isaac Sim's ROS2 bridge extension handles ROS2 communication internally.
+
 ISAAC_ROS_BRIDGE="/isaac-sim/exts/isaacsim.ros2.bridge/${ROS_DISTRO}"
-export PYTHONPATH="${ISAAC_ROS_BRIDGE}/lib/python3.11/site-packages:${PYTHONPATH}"
 
-# Source ROS2 environment (sets LD_LIBRARY_PATH dynamically)
-source /opt/ros/${ROS_DISTRO}/setup.bash
-
-# Add Isaac Sim ROS2 bridge libraries (must come BEFORE system ROS libs)
+# Ensure Isaac Sim's ROS2 bridge libs are in LD_LIBRARY_PATH
 export LD_LIBRARY_PATH="${ISAAC_ROS_BRIDGE}/lib:${LD_LIBRARY_PATH}"
 
 # If no command provided, start Isaac Sim headless with livestream
