@@ -68,21 +68,33 @@ ENTRYPOINT ["/entrypoint.sh"]
 # Switch back to the original user if required by Isaac Sim
 USER isaac-sim
 
+# TurtleBot3 stage
+# https://docs.isaacsim.omniverse.nvidia.com/5.1.0/ros2_tutorials/tutorial_ros2_turtlebot.html#isaac-sim-app-tutorial-ros2-turtlebot
+FROM isaac-sim AS turtlebot3
+
+USER root
+
+# Install xacro for URDF processing
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ros-${ROS_DISTRO}-xacro && \
+    rm -rf /var/lib/apt/lists/*
+
+# Clone TurtleBot3 repository and process URDF
+WORKDIR /isaac-sim
+RUN git clone -b ${ROS_DISTRO} https://github.com/ROBOTIS-GIT/turtlebot3.git turtlebot3 && \
+    chmod -R 777 turtlebot3/* && \
+    cd turtlebot3/turtlebot3_description/urdf && \
+    . /opt/ros/${ROS_DISTRO}/setup.sh && \
+    xacro ./turtlebot3_burger.urdf "namespace:=/" > tb3_burger_processed.urdf
+
+USER isaac-sim
+
+ENTRYPOINT ["/entrypoint.sh"]
+
 # ---
 # The following are the original ROS2 and TurtleBot3 Docker steps for reference.
 # Uncomment and adapt as needed for future use.
-#
-# FROM ros:${ROS_DISTRO} AS ros2
-#
-# SHELL ["/bin/bash", "-lc"]
-#
-# ARG ROS_DISTRO
-#
-# # Install ROS2 Packages
-# RUN apt-get update && apt-get install -y --no-install-recommends \
-#     ros-${ROS_DISTRO}-ros-gz \
-#     ros-${ROS_DISTRO}-ros-gz-*
-#
+
 # # Python setup for scripts
 # RUN set -e \
 #  && apt-get update \

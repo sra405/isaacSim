@@ -1,7 +1,7 @@
 services:
   isaac-sim:
     build:
-      context: .
+      target: turtlebot3
       args:
         ROS_DISTRO: ${ROS_DISTRO:-jazzy}
     image: isaac-sim-ros2:5.1.0-jazzy
