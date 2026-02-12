@@ -60,11 +60,13 @@ I suspect the PUBLIC_IP can be mapped through cloudflare tunnel but I have yet t
 Once up and running the following tutorials have been followed and work well in a Brev L40S instance:
 - [Driving a TurtleBot using ROS 2 Messages](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/ros2_tutorials/tutorial_ros2_drive_turtlebot.html)
 
+
+
 ### Brev
 
 With the `isaac-sim` container running (in VM mode with `startup.sh` copied as a startup script), the instance is accessible via the Brev CLI and/or open the required ports (49100 and 47998) to enable livestreaming.
 
-![Brev Ports](./docs/brev_ports.png)
+<img width="654" height="370" alt="brev_ports" src="https://github.com/user-attachments/assets/816573c9-b3ba-4653-9dcb-4cc134380ab2" />
 
 This can be made completely public or restricted to only your IP address. After this the IP address can be used to connect to the livestream in Isaac Sim.
 
