@@ -85,7 +85,7 @@ RUN git clone -b ${ROS_DISTRO} https://github.com/ROBOTIS-GIT/turtlebot3.git tur
     chmod -R 777 turtlebot3/* && \
     cd turtlebot3/turtlebot3_description/urdf && \
     . /opt/ros/${ROS_DISTRO}/setup.sh && \
-    xacro ./turtlebot3_burger.urdf "namespace:=/" > tb3_burger_processed.urdf
+    xacro ./turtlebot3_burger.urdf > tb3_burger_processed.urdf
 
 USER isaac-sim
 

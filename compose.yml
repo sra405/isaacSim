@@ -21,6 +21,7 @@ services:
       - PRIVACY_CONSENT=Y
     network_mode: host
     volumes:
+      - ./scripts:/scripts:rw
       - ./docker/isaac-sim/cache/main:/isaac-sim/.cache:rw
       - ./docker/isaac-sim/cache/computecache:/isaac-sim/.nv/ComputeCache:rw
       - ./docker/isaac-sim/logs:/isaac-sim/.nvidia-omniverse/logs:rw
