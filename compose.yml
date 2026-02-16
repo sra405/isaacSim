@@ -1,4 +1,24 @@
 services:
+  nf-rl-project:
+    build:
+      context: ./nf-rl-project
+      dockerfile: Dockerfile
+      args:
+        ROS_DISTRO: ${ROS_DISTRO:-jazzy}
+    image: nf_rl_project:latest
+    container_name: nf_rl_project
+    network_mode: host
+    environment:
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-30}
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - FASTRTPS_DEFAULT_PROFILES_FILE=/etc/ros/fastdds.xml
+    volumes:
+      - ./nf-rl-project/workspace:/root/ros2_ws/src:rw
+      - ./static/fastdds.xml:/etc/ros/fastdds.xml:ro
+    stdin_open: true
+    tty: true
+    restart: "no"
+
   isaac-sim:
     build:
       target: turtlebot3
@@ -19,9 +39,13 @@ services:
     environment:
       - ACCEPT_EULA=Y
       - PRIVACY_CONSENT=Y
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-30}
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - FASTRTPS_DEFAULT_PROFILES_FILE=/etc/ros/fastdds.xml
     network_mode: host
     volumes:
       - ./scripts:/scripts:rw
+      - ./nf-rl-project:/nf-nl-project:rw
       - ./docker/isaac-sim/cache/main:/isaac-sim/.cache:rw
       - ./docker/isaac-sim/cache/computecache:/isaac-sim/.nv/ComputeCache:rw
       - ./docker/isaac-sim/logs:/isaac-sim/.nvidia-omniverse/logs:rw
