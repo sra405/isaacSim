@@ -38,6 +38,35 @@ For the entire setup set the `CF_TUNNEL_TOKEN` in a `.env` file and run the comp
 docker compose up -d
 ```
 
+### Neural Foundry packages
+
+Installation of this container is optional and contained as a submodule in this repo under `nf-rl-project`. Ensure you have access to this repository and you're authenticated in whichever environment to pull the source.
+
+In Brev this requires you to open a shell, install gh cli and pull the source:
+
+```bash
+# open shell in brev instance
+brev shell <instance-name>
+# install gh cli
+sudo apt update && sudo apt install gh -y
+# authenticate with github
+gh auth login
+# pull the submodule from source
+git submodule update --init --recursive
+```
+
+once pulled the container can be built from the repo root with the following command:
+
+```bash
+docker compose up -d nf-rl-project --build
+```
+
+if there's issues once built (such as missing dependencies) it's likely nested submodules are not pulled, ensure all submodules are pulled from the repo root and inside `nf-rl-project` with the following command:
+
+```bash
+git submodule update --init --recursive
+```
+
 ## Notes
 
 This is a work in progress repo with the aim of committing a minimal working example of Isaac Sim usage. With the proposed approach being to spin up/down cloud GPU compute instances its vital to version control the setup steps as much as possible.
@@ -48,6 +77,7 @@ Key files:
 
 Key services:
 - `isaac-sim` - the main Isaac Sim container
+- `nf-rl-project` - a container for Neural Foundry project files and ROS dependencies i.e. bespoke URDs and doosan-robot packages.
 - `cloudflared` - a Cloudflare tunnel container to expose SSH access to Isaac Sim for remote control
 - `openssh-server` - an SSH server container to allow remote access into Isaac Sim via the cloudflared tunnel
 
@@ -59,6 +89,12 @@ I suspect the PUBLIC_IP can be mapped through cloudflare tunnel but I have yet t
 
 Once up and running the following tutorials have been followed and work well in a Brev L40S instance:
 - [Driving a TurtleBot using ROS 2 Messages](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/ros2_tutorials/tutorial_ros2_drive_turtlebot.html)
+
+### Neural Foundry packages
+
+The `nf-rl-project` container is used to store project files and ROS dependencies for the Doosan robot. This includes bespoke URDFs and ROS packages for the Doosan robot. This container can be built from the `nf-rl-project` directory and then used as a volume in the Isaac Sim container to access the project files and ROS dependencies.
+
+Once pulled and installed follow the instructions [here](https://github.com/Nikhil-KO/Isaac-Simulation-of-Doosan-Arm/tree/main?tab=readme-ov-file#run-instructions) to run a Doosan robot simulation in Isaac Sim using the `nf-rl-project` container for the necessary ROS dependencies and URD files.
 
 ### Brev
 
